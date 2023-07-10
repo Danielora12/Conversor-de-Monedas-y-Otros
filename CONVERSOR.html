@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Conversor de Monedas y Más</title>
+  <style>
+    body {
+      background-image: url("https://s4.aconvert.com/convert/p3r68-cdx67/agbll-2seed.webp");
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    #container {
+      background-color: rgba(255, 255, 255, 0.8);
+      display: center;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #conversionType {
+      margin-right: 20px;
+    }
+
+    .converter {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      display: none;
+    }
+
+    #currencyConverter {
+      display: center;
+    }
+
+    #converterResult {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    #converter {
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="logo">
+    </div>
+
+    <div id="converter">
+      <h2>Seleccione el tipo de conversión:</h2>
+      <select id="conversionType" onchange="showSelectedConverter()">
+        <option value="">Seleccionar...</option>
+        <option value="currency">Conversor de Monedas</option>
+        <option value="temperature">Conversor de Temperatura</option>
+        <option value="metric">Conversor Métrico</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="currencyConverter" class="converter">
+    <h2>Conversor de Monedas</h2>
+    <input type="number" id="currencyAmount" placeholder="Monto">
+    <select id="currencyFrom">
+      <option value="COP">COP</option>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+      <option value="JPY">JPY</option>
+      <option value="ARS">ARS</option>
+      <option value="BRL">BRL</option>
+      <option value="CLP">CLP</option>
+      <option value="MXN">MXN</option>
+    </select>
+    <select id="currencyTo">
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+      <option value="JPY">JPY</option>
+      <option value="ARS">ARS</option>
+      <option value="BRL">BRL</option>
+      <option value="CLP">CLP</option>
+      <option value="COP">COP</option>
+      <option value="MXN">MXN</option>
+    </select>
+    <button onclick="convertCurrency()">Convertir</button>
+    <p id="currencyResult"></p>
+  </div>
+
+  <div id="temperatureConverter" class="converter">
+    <h2>Conversor de Temperatura</h2>
+    <input type="number" id="temperatureAmount" placeholder="Temperatura">
+    <select id="temperatureFrom">
+      <option value="C">Celsius</option>
+      <option value="F">Fahrenheit</option>
+      <option value="K">Kelvin</option>
+    </select>
+    <select id="temperatureTo">
+      <option value="F">Fahrenheit</option>
+      <option value="C">Celsius</option>
+      <option value="K">Kelvin</option>
+    </select>
+    <button onclick="convertTemperature()">Convertir</button>
+    <p id="temperatureResult"></p>
+  </div>
+
+  <div id="metricConverter" class="converter">
+    <h2>Conversor Métrico</h2>
+    <input type="number" id="metricAmount" placeholder="Medida">
+    <select id="metricFrom">
+      <option value="cm">Centímetros</option>
+      <option value="m">Metros</option>
+      <option value="km">Kilómetros</option>
+    </select>
+    <select id="metricTo">
+      <option value="m">Metros</option>
+      <option value="cm">Centímetros</option>
+      <option value="km">Kilómetros</option>
+    </select>
+    <button onclick="convertMetric()">Convertir</button>
+    <p id="metricResult"></p>
+  </div>
+
+  <script>
+    function showSelectedConverter() {
+      var conversionType = document.getElementById('conversionType').value;
+      hideAllConverters();
+
+      if (conversionType === 'currency') {
+        document.getElementById('currencyConverter').style.display = 'block';
+      } else if (conversionType === 'temperature') {
+        document.getElementById('temperatureConverter').style.display = 'block';
+      } else if (conversionType === 'metric') {
+        document.getElementById('metricConverter').style.display = 'block';
+      }
+    }
+
+    function hideAllConverters() {
+      var converters = document.getElementsByClassName('converter');
+      for (var i = 0; i < converters.length; i++) {
+        converters[i].style.display = 'none';
+      }
+    }
+
+    function convertCurrency() {
+      var amountInput = document.getElementById('currencyAmount');
+      var amount = Number(amountInput.value.replace(/,/g, ''));
+      var from = document.getElementById('currencyFrom').value;
+      var to = document.getElementById('currencyTo').value;
+
+      var apiKey = '43085406b2c3e272215001b8';
+      var currencyUrl = `https://api.exchangerate-api.com/v4/latest/${from}?api_key=${apiKey}`;
+
+      fetch(currencyUrl)
+        .then(response => response.json())
+        .then(data => {
+          var rate = data.rates[to];
+          var result = amount * rate;
+          document.getElementById('currencyResult').innerHTML = `${amount.toLocaleString()} ${from} = ${result.toLocaleString()} ${to}`;
+        })
+        .catch(error => {
+          console.log('Error:', error);
+        });
+    }
+
+function convertTemperature() {
+      var amount = document.getElementById('temperatureAmount').value;
+      var from = document.getElementById('temperatureFrom').value;
+      var to = document.getElementById('temperatureTo').value;
+
+      var result;
+
+      if (from === 'C') {
+        if (to === 'F') {
+          result = (amount * 9/5) + 32;
+        } else if (to === 'K') {
+          result = parseFloat(amount) + 273.15;
+        }
+      } else if (from === 'F') {
+        if (to === 'C') {
+          result = (amount - 32) * 5/9;
+        } else if (to === 'K') {
+          result = (amount - 32) * 5/9 + 273.15;
+        }
+      } else if (from === 'K') {
+        if (to === 'C') {
+          result = amount - 273.15;
+        } else if (to === 'F') {
+          result = (amount - 273.15) * 9/5 + 32;
+        }
+      }
+
+      document.getElementById('temperatureResult').innerHTML = `${amount.toLocaleString()} ${from} = ${result.toLocaleString()} ${to}`;
+    }
+
+    function convertMetric() {
+      var amount = document.getElementById('metricAmount').value;
+      var from = document.getElementById('metricFrom').value;
+      var to = document.getElementById('metricTo').value;
+
+      var result;
+
+      if (from === 'cm') {
+        if (to === 'm') {
+          result = amount / 100;
+        } else if (to === 'km') {
+          result = amount / 100000;
+        }
+      } else if (from === 'm') {
+        if (to === 'cm') {
+          result = amount * 100;
+        } else if (to === 'km') {
+          result = amount / 1000;
+        }
+      } else if (from === 'km') {
+        if (to === 'cm') {
+          result = amount * 100000;
+        } else if (to === 'm') {
+          result = amount * 1000;
+        }
+      }
+
+      document.getElementById('metricResult').innerHTML = `${amount.toLocaleString()} ${from} = ${result.toLocaleString()} ${to}`;
+    }
+  </script>
+</body>
+</html>
